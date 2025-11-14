@@ -350,11 +350,378 @@ def save_concept_data(concepts: List[Dict]):
         
         with open('concept_section_data.json', 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-        
+            
         logger.info(f"概念板块数据已保存到 concept_section_data.json")
         
+        # 更新历史数据
+        update_historical_data(concepts)
+        
     except Exception as e:
-        logger.error(f"保存数据失败: {e}")
+        logger.error(f"保存概念板块数据失败: {e}")
+
+def update_historical_data(concepts: List[Dict]):
+    """
+    更新历史数据，保存最近10天的概念板块信息
+    
+    Args:
+        concepts: 概念板块数据列表
+    """
+    try:
+        # 读取历史数据
+        history_file = 'concept_section_history.json'
+        if os.path.exists(history_file):
+            with open(history_file, 'r', encoding='utf-8') as f:
+                historical_data = json.load(f)
+        else:
+            historical_data = {'historical_data': {}}
+        
+        # 获取当前日期
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # 提取概念名称列表
+        concept_names = [concept['name'] for concept in concepts]
+        
+        # 添加今日数据
+        historical_data['historical_data'][current_date] = {
+            'date': current_date,
+            'concepts': concept_names,
+            'count': len(concept_names)
+        }
+        
+        # 只保留最近10天的数据
+        dates = sorted(historical_data['historical_data'].keys())
+        if len(dates) > 10:
+            # 删除最早的数据
+            for old_date in dates[:-10]:
+                del historical_data['historical_data'][old_date]
+                logger.info(f"删除历史数据: {old_date}")
+        
+        # 保存更新后的历史数据
+        with open(history_file, 'w', encoding='utf-8') as f:
+            json.dump(historical_data, f, ensure_ascii=False, indent=2)
+            
+        logger.info(f"历史数据已更新，共保存 {len(historical_data['historical_data'])} 天的数据")
+        
+        # 生成历史统计并更新HTML
+        generate_historical_statistics(historical_data)
+        
+    except Exception as e:
+        logger.error(f"更新历史数据失败: {e}")
+
+def generate_historical_statistics(historical_data: Dict):
+    """
+    生成历史统计数据并更新HTML文件
+    
+    Args:
+        historical_data: 历史数据字典
+    """
+    try:
+        # 统计概念板块出现次数
+        concept_count = {}
+        
+        # 只统计最近5天的数据
+        dates = sorted(historical_data['historical_data'].keys())[-5:]
+        
+        for date in dates:
+            concepts = historical_data['historical_data'][date]['concepts']
+            for concept in concepts:
+                concept_count[concept] = concept_count.get(concept, 0) + 1
+        
+        # 按出现次数排序，取前10
+        sorted_concepts = sorted(concept_count.items(), key=lambda x: x[1], reverse=True)[:10]
+        
+        logger.info(f"历史统计完成，前5天概念板块出现次数统计: {sorted_concepts}")
+        
+        # 更新HTML报告
+        update_html_report(sorted_concepts, historical_data)
+        
+    except Exception as e:
+        logger.error(f"生成历史统计数据失败: {e}")
+
+def update_html_report(sorted_concepts: List, historical_data: Dict):
+    """
+    更新HTML报告文件
+    
+    Args:
+        sorted_concepts: 排序后的概念板块列表
+        historical_data: 历史数据字典
+    """
+    try:
+        # 读取当前的概念板块数据
+        current_data_file = 'concept_section_data.json'
+        if os.path.exists(current_data_file):
+            with open(current_data_file, 'r', encoding='utf-8') as f:
+                current_data = json.load(f)
+        else:
+            current_data = {'concepts': []}
+        
+        # 生成HTML内容
+        html_content = generate_html_content(current_data, sorted_concepts, historical_data)
+        
+        # 保存HTML文件
+        with open('concept_section_report.html', 'w', encoding='utf-8') as f:
+            f.write(html_content)
+            
+        logger.info("HTML报告已更新")
+        
+    except Exception as e:
+        logger.error(f"更新HTML报告失败: {e}")
+
+def generate_html_content(current_data: Dict, sorted_concepts: List, historical_data: Dict) -> str:
+    """
+    生成HTML内容
+    
+    Args:
+        current_data: 当前概念板块数据
+        sorted_concepts: 排序后的历史概念板块
+        historical_data: 历史数据字典
+        
+    Returns:
+        str: HTML内容
+    """
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    html = f"""
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>概念板块资金流向报告</title>
+    <style>
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }}
+        .container {{
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }}
+        .header {{
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }}
+        .header p {{
+            margin: 10px 0 0 0;
+            opacity: 0.8;
+            font-size: 1.1em;
+        }}
+        .content {{
+            padding: 30px;
+        }}
+        .section {{
+            margin-bottom: 40px;
+        }}
+        .section h2 {{
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }}
+        .current-table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }}
+        .current-table th {{
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }}
+        .current-table td {{
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }}
+        .current-table tr:hover {{
+            background-color: #f8f9fa;
+        }}
+        .positive {{
+            color: #e74c3c;
+            font-weight: bold;
+        }}
+        .negative {{
+            color: #27ae60;
+            font-weight: bold;
+        }}
+        .stats-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }}
+        .stat-card {{
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }}
+        .stat-card h3 {{
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }}
+        .stat-card .value {{
+            font-size: 2em;
+            font-weight: bold;
+        }}
+        .history-table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }}
+        .history-table th {{
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }}
+        .history-table td {{
+            padding: 10px 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }}
+        .rank-1 {{ background-color: #f1c40f; color: #2c3e50; font-weight: bold; }}
+        .rank-2 {{ background-color: #e67e22; color: white; }}
+        .rank-3 {{ background-color: #e74c3c; color: white; }}
+        .footer {{
+            background: #34495e;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>概念板块资金流向分析报告</h1>
+            <p>更新时间: {current_time}</p>
+        </div>
+        
+        <div class="content">
+            <!-- 当前概念板块数据 -->
+            <div class="section">
+                <h2>📊 当前概念板块资金流向排行前十</h2>
+                <table class="current-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>概念板块</th>
+                            <th>涨跌幅(%)</th>
+                            <th>主力净流入(万元)</th>
+                            <th>超大单净流入(万元)</th>
+                            <th>大单净流入(万元)</th>
+                            <th>龙头股</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+"""
+    
+    # 添加当前数据行
+    for i, concept in enumerate(current_data.get('concepts', []), 1):
+        change_class = 'positive' if concept.get('change_rate', 0) > 0 else 'negative'
+        html += f"""
+                        <tr>
+                            <td>{i}</td>
+                            <td><strong>{concept.get('name', '')}</strong></td>
+                            <td class="{change_class}">{concept.get('change_rate', 0):.2f}%</td>
+                            <td>{concept.get('main_inflow', 0):,.0f}</td>
+                            <td>{concept.get('super_large_inflow', 0):,.0f}</td>
+                            <td>{concept.get('large_inflow', 0):,.0f}</td>
+                            <td>{concept.get('max_stock', '')}</td>
+                        </tr>
+"""
+    
+    html += """
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 历史统计数据 -->
+            <div class="section">
+                <h2>📈 前5天概念板块出现频率统计</h2>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>概念板块</th>
+                            <th>出现次数</th>
+                            <th>频率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+"""
+    
+    # 添加历史统计行
+    total_days = min(5, len(historical_data.get('historical_data', {})))
+    for i, (concept, count) in enumerate(sorted_concepts, 1):
+        frequency = f"{(count/total_days)*100:.1f}%" if total_days > 0 else "0%"
+        rank_class = f"rank-{i}" if i <= 3 else ""
+        html += f"""
+                        <tr class="{rank_class}">
+                            <td>{i}</td>
+                            <td><strong>{concept}</strong></td>
+                            <td>{count}</td>
+                            <td>{frequency}</td>
+                        </tr>
+"""
+    
+    html += """
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 数据概览 -->
+            <div class="section">
+                <h2>📋 数据概览</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>历史数据天数</h3>
+                        <div class="value">{len(historical_data.get('historical_data', {}))}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>统计天数</h3>
+                        <div class="value">{total_days}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>当前概念板块</h3>
+                        <div class="value">{len(current_data.get('concepts', []))}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 概念板块资金流向分析系统 | 数据更新时间: {current_time}</p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+    
+    return html
 
 def main():
     """

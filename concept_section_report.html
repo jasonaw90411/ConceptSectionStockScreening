@@ -1,484 +1,375 @@
 
-    <!DOCTYPE html>
-    <html lang="zh-CN">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>东方财富网板块资金流入报告</title>
-        <style>
-            body {
-                font-family: 'Microsoft YaHei', Arial, sans-serif;
-                line-height: 1.4;
-                color: #333;
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 10px;
-                background-color: #f5f5f5;
-            }
-            h1 {
-                color: #1a1a1a;
-                text-align: center;
-                margin-bottom: 15px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #e0e0e0;
-                font-size: 1.5em;
-            }
-            h2 {
-                color: #2c3e50;
-                margin-top: 20px;
-                margin-bottom: 15px;
-                font-size: 1.3em;
-            }
-            .update-time {
-                text-align: center;
-                color: #666;
-                margin-bottom: 15px;
-                font-style: italic;
-                font-size: 0.9em;
-            }
-            .top-sectors {
-                background-color: #fff;
-                border-radius: 6px;
-                padding: 15px;
-                margin-bottom: 15px;
-                box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-            }
-            .selected-stocks {
-                background-color: #fff;
-                border-radius: 6px;
-                padding: 15px;
-                margin-bottom: 15px;
-                box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-                border-left: 4px solid #007bff;
-            }
-            .sector-card {
-                background-color: #f8f9fa;
-                border-radius: 4px;
-                padding: 12px;
-                margin-bottom: 10px;
-                border-left: 3px solid #28a745;
-            }
-            .sector-card h2 {
-                margin-top: 0;
-                margin-bottom: 8px;
-                color: #2c3e50;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                font-size: 1.2em;
-            }
-            .change-rate {
-                color: #dc3545;
-                font-weight: bold;
-                padding: 1px 6px;
-                border-radius: 3px;
-                background-color: #fee;
-                font-size: 0.9em;
-            }
-            .data-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 10px;
-                margin-top: 8px;
-            }
-            .data-item {
-                background-color: #fff;
-                padding: 8px;
-                border-radius: 3px;
-                border: 1px solid #e9ecef;
-            }
-            .data-item .label {
-                font-size: 0.8em;
-                color: #666;
-                margin-bottom: 3px;
-            }
-            .data-item .value {
-                font-size: 1em;
-                font-weight: bold;
-                color: #28a745;
-            }
-            .value.negative {
-                color: #dc3545;
-            }
-            .all-sectors {
-                background-color: #fff;
-                border-radius: 8px;
-                padding: 25px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-            }
-            th, td {
-                padding: 12px;
-                text-align: left;
-                border-bottom: 1px solid #ddd;
-            }
-            th {
-                background-color: #f8f9fa;
-                font-weight: bold;
-                color: #495057;
-            }
-            tr:hover {
-                background-color: #f8f9fa;
-            }
-            .positive {
-                color: #28a745;
-            }
-            .negative {
-                color: #dc3545;
-            }
-            /* 响应式表格 */
-            @media (max-width: 768px) {
-                .stocks-table {
-                    display: block;
-                    overflow-x: auto;
-                    white-space: nowrap;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <h1>东方财富网板块资金流入报告</h1>
-        <div class="update-time">更新时间: 2025-11-14 14:17:30</div>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>概念板块资金流向报告</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.8;
+            font-size: 1.1em;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .current-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .current-table th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .current-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .current-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        .positive {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .negative {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .history-table th {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        .history-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .rank-1 { background-color: #f1c40f; color: #2c3e50; font-weight: bold; }
+        .rank-2 { background-color: #e67e22; color: white; }
+        .rank-3 { background-color: #e74c3c; color: white; }
+        .footer {
+            background: #34495e;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>概念板块资金流向分析报告</h1>
+            <p>更新时间: 2025-11-14 18:03:08</p>
+        </div>
         
-        <div class="top-sectors">
-            <h2>主力净流入前五个板块</h2>
+        <div class="content">
+            <!-- 当前概念板块数据 -->
+            <div class="section">
+                <h2>📊 当前概念板块资金流向排行前十</h2>
+                <table class="current-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>概念板块</th>
+                            <th>涨跌幅(%)</th>
+                            <th>主力净流入(万元)</th>
+                            <th>超大单净流入(万元)</th>
+                            <th>大单净流入(万元)</th>
+                            <th>龙头股</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <td>1</td>
+                            <td><strong>流感</strong></td>
+                            <td class="positive">1.05%</td>
+                            <td>1,313,370,176</td>
+                            <td>1,632,930,368</td>
+                            <td>-319,560,192</td>
+                            <td>众生药业</td>
+                        </tr>
+
+                        <tr>
+                            <td>2</td>
+                            <td><strong>幽门螺杆菌概念</strong></td>
+                            <td class="positive">1.78%</td>
+                            <td>1,197,480,320</td>
+                            <td>1,623,943,152</td>
+                            <td>-426,462,832</td>
+                            <td>众生药业</td>
+                        </tr>
+
+                        <tr>
+                            <td>3</td>
+                            <td><strong>肝炎概念</strong></td>
+                            <td class="positive">1.05%</td>
+                            <td>929,580,512</td>
+                            <td>1,351,423,968</td>
+                            <td>-421,843,456</td>
+                            <td>众生药业</td>
+                        </tr>
+
+                        <tr>
+                            <td>4</td>
+                            <td><strong>海南自贸</strong></td>
+                            <td class="positive">2.38%</td>
+                            <td>868,124,672</td>
+                            <td>824,566,272</td>
+                            <td>43,558,400</td>
+                            <td>海南发展</td>
+                        </tr>
+
+                        <tr>
+                            <td>5</td>
+                            <td><strong>低价股</strong></td>
+                            <td class="positive">1.18%</td>
+                            <td>828,949,504</td>
+                            <td>760,294,400</td>
+                            <td>68,655,104</td>
+                            <td>永泰能源</td>
+                        </tr>
+
+                        <tr>
+                            <td>6</td>
+                            <td><strong>页岩气</strong></td>
+                            <td class="positive">0.22%</td>
+                            <td>717,416,640</td>
+                            <td>968,808,640</td>
+                            <td>-251,392,000</td>
+                            <td>永泰能源</td>
+                        </tr>
+
+                        <tr>
+                            <td>7</td>
+                            <td><strong>TOPCon电池</strong></td>
+                            <td class="positive">0.82%</td>
+                            <td>700,378,624</td>
+                            <td>319,140,864</td>
+                            <td>381,237,760</td>
+                            <td>TCL中环</td>
+                        </tr>
+
+                        <tr>
+                            <td>8</td>
+                            <td><strong>钒电池</strong></td>
+                            <td class="positive">0.56%</td>
+                            <td>653,189,824</td>
+                            <td>876,530,336</td>
+                            <td>-223,340,512</td>
+                            <td>永泰能源</td>
+                        </tr>
+
+                        <tr>
+                            <td>9</td>
+                            <td><strong>减肥药</strong></td>
+                            <td class="positive">0.55%</td>
+                            <td>649,072,592</td>
+                            <td>790,594,704</td>
+                            <td>-141,522,112</td>
+                            <td>众生药业</td>
+                        </tr>
+
+                        <tr>
+                            <td>10</td>
+                            <td><strong>长寿药</strong></td>
+                            <td class="positive">0.37%</td>
+                            <td>595,583,520</td>
+                            <td>1,031,806,864</td>
+                            <td>-436,223,344</td>
+                            <td>众生药业</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
             
-        <div class="sector-card">
-            <h2>
-                    <span>#1 <a href="https://data.eastmoney.com/bkzj/BK1031.html" target="_blank" style="color: #2c3e50; text-decoration: none;">光伏设备</a></span>
-                    <span class="change-rate ">+0.0%</span>
-                </h2>
-            <div class="data-grid">
-                <div class="data-item">
-                    <div class="label">超大单净流入</div>
-                    <div class="value ">+103253.9648亿</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">超大单净流入占比</div>
-                    <div class="value ">+1.41%</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">大单净流入</div>
-                    <div class="value ">+38499.712亿</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">大单净流入占比</div>
-                    <div class="value ">+0.53%</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">主力净流入最大股</div>
-                    <div class="value">清源股份</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">板块链接</div>
-                    <div class="value" style="word-break: break-all;"><a href="https://data.eastmoney.com/bkzj/BK1031.html" target="_blank" style="color: #0066cc;">查看详情</a></div>
+            <!-- 历史统计数据 -->
+            <div class="section">
+                <h2>📈 前5天概念板块出现频率统计</h2>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>概念板块</th>
+                            <th>出现次数</th>
+                            <th>频率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr class="rank-1">
+                            <td>1</td>
+                            <td><strong>流感</strong></td>
+                            <td>1</td>
+                            <td>100.0%</td>
+                        </tr>
+
+                        <tr class="rank-2">
+                            <td>2</td>
+                            <td><strong>幽门螺杆菌概念</strong></td>
+                            <td>1</td>
+                            <td>100.0%</td>
+                        </tr>
+
+                        <tr class="rank-3">
+                            <td>3</td>
+                            <td><strong>肝炎概念</strong></td>
+                            <td>1</td>
+                            <td>100.0%</td>
+                        </tr>
+
+                        <tr class="">
+                            <td>4</td>
+                            <td><strong>海南自贸</strong></td>
+                            <td>1</td>
+                            <td>100.0%</td>
+                        </tr>
+
+                        <tr class="">
+                            <td>5</td>
+                            <td><strong>低价股</strong></td>
+                            <td>1</td>
+                            <td>100.0%</td>
+                        </tr>
+
+                        <tr class="">
+                            <td>6</td>
+                            <td><strong>页岩气</strong></td>
+                            <td>1</td>
+                            <td>100.0%</td>
+                        </tr>
+
+                        <tr class="">
+                            <td>7</td>
+                            <td><strong>TOPCon电池</strong></td>
+                            <td>1</td>
+                            <td>100.0%</td>
+                        </tr>
+
+                        <tr class="">
+                            <td>8</td>
+                            <td><strong>钒电池</strong></td>
+                            <td>1</td>
+                            <td>100.0%</td>
+                        </tr>
+
+                        <tr class="">
+                            <td>9</td>
+                            <td><strong>减肥药</strong></td>
+                            <td>1</td>
+                            <td>100.0%</td>
+                        </tr>
+
+                        <tr class="">
+                            <td>10</td>
+                            <td><strong>长寿药</strong></td>
+                            <td>1</td>
+                            <td>100.0%</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 数据概览 -->
+            <div class="section">
+                <h2>📋 数据概览</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>历史数据天数</h3>
+                        <div class="value">{len(historical_data.get('historical_data', {}))}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>统计天数</h3>
+                        <div class="value">{total_days}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>当前概念板块</h3>
+                        <div class="value">{len(current_data.get('concepts', []))}</div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="sector-card">
-            <h2>
-                    <span>#2 <a href="https://data.eastmoney.com/bkzj/BK0465.html" target="_blank" style="color: #2c3e50; text-decoration: none;">化学制药</a></span>
-                    <span class="change-rate ">+0.0%</span>
-                </h2>
-            <div class="data-grid">
-                <div class="data-item">
-                    <div class="label">超大单净流入</div>
-                    <div class="value ">+71839.232亿</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">超大单净流入占比</div>
-                    <div class="value ">+1.63%</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">大单净流入</div>
-                    <div class="value ">+10133.0688亿</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">大单净流入占比</div>
-                    <div class="value ">+0.23%</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">主力净流入最大股</div>
-                    <div class="value">海南海药</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">板块链接</div>
-                    <div class="value" style="word-break: break-all;"><a href="https://data.eastmoney.com/bkzj/BK0465.html" target="_blank" style="color: #0066cc;">查看详情</a></div>
-                </div>
-            </div>
+        <div class="footer">
+            <p>© 2024 概念板块资金流向分析系统 | 数据更新时间: {current_time}</p>
         </div>
-        
-        <div class="sector-card">
-            <h2>
-                    <span>#3 <a href="https://data.eastmoney.com/bkzj/BK1040.html" target="_blank" style="color: #2c3e50; text-decoration: none;">中药</a></span>
-                    <span class="change-rate ">+0.0%</span>
-                </h2>
-            <div class="data-grid">
-                <div class="data-item">
-                    <div class="label">超大单净流入</div>
-                    <div class="value ">+114444.8亿</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">超大单净流入占比</div>
-                    <div class="value ">+6.32%</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">大单净流入</div>
-                    <div class="value negative">-35156.784亿</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">大单净流入占比</div>
-                    <div class="value negative">-1.94%</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">主力净流入最大股</div>
-                    <div class="value">众生药业</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">板块链接</div>
-                    <div class="value" style="word-break: break-all;"><a href="https://data.eastmoney.com/bkzj/BK1040.html" target="_blank" style="color: #0066cc;">查看详情</a></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="sector-card">
-            <h2>
-                    <span>#4 <a href="https://data.eastmoney.com/bkzj/BK0451.html" target="_blank" style="color: #2c3e50; text-decoration: none;">房地产开发</a></span>
-                    <span class="change-rate ">+0.0%</span>
-                </h2>
-            <div class="data-grid">
-                <div class="data-item">
-                    <div class="label">超大单净流入</div>
-                    <div class="value ">+66460.9328亿</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">超大单净流入占比</div>
-                    <div class="value ">+2.91%</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">大单净流入</div>
-                    <div class="value ">+4208.384亿</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">大单净流入占比</div>
-                    <div class="value ">+0.18%</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">主力净流入最大股</div>
-                    <div class="value">华夏幸福</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">板块链接</div>
-                    <div class="value" style="word-break: break-all;"><a href="https://data.eastmoney.com/bkzj/BK0451.html" target="_blank" style="color: #0066cc;">查看详情</a></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="sector-card">
-            <h2>
-                    <span>#5 <a href="https://data.eastmoney.com/bkzj/BK1028.html" target="_blank" style="color: #2c3e50; text-decoration: none;">燃气</a></span>
-                    <span class="change-rate ">+0.0%</span>
-                </h2>
-            <div class="data-grid">
-                <div class="data-item">
-                    <div class="label">超大单净流入</div>
-                    <div class="value ">+32540.248亿</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">超大单净流入占比</div>
-                    <div class="value ">+3.7%</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">大单净流入</div>
-                    <div class="value ">+330.1632亿</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">大单净流入占比</div>
-                    <div class="value ">+0.04%</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">主力净流入最大股</div>
-                    <div class="value">胜利股份</div>
-                </div>
-                <div class="data-item">
-                    <div class="label">板块链接</div>
-                    <div class="value" style="word-break: break-all;"><a href="https://data.eastmoney.com/bkzj/BK1028.html" target="_blank" style="color: #0066cc;">查看详情</a></div>
-                </div>
-            </div>
-        </div>
-        
-        </div>
-        
-        
-    <div class="selected-stocks">
-        <h2>推荐前10个股</h2>
-        <table class="stocks-table">
-            <thead>
-                <tr>
-                    <th>排名</th>
-                    <th>股票代码</th>
-                    <th>股票名称</th>
-                    <th>板块</th>
-                    <th>价格</th>
-                    <th>涨跌幅(%)</th>
-                    <th>主力净流入(亿)</th>
-                    <th>综合得分</th>
-                    <th>动量得分</th>
-                    <th>趋势得分</th>
-                    <th>成交量因子</th>
-                </tr>
-            </thead>
-            <tbody>
-    
-                <tr>
-                    <td>1</td>
-                    <td>600664</td>
-                    <td>哈药股份</td>
-                    <td>化学制药</td>
-                    <td>3.9</td>
-                    <td class="positive">+2.63</td>
-                    <td class="positive">+2160.34</td>
-                    <td class="positive">50.46</td>
-                    <td class="positive">7.42</td>
-                    <td class="positive">100.00</td>
-                    <td class="positive">2.14</td>
-                </tr>
-            
-                <tr>
-                    <td>2</td>
-                    <td>600557</td>
-                    <td>康缘药业</td>
-                    <td>中药</td>
-                    <td>16.43</td>
-                    <td class="positive">+4.78</td>
-                    <td class="positive">+3500.8</td>
-                    <td class="positive">49.55</td>
-                    <td class="positive">14.83</td>
-                    <td class="positive">100.00</td>
-                    <td class="positive">1.56</td>
-                </tr>
-            
-                <tr>
-                    <td>3</td>
-                    <td>301507</td>
-                    <td>民生健康</td>
-                    <td>化学制药</td>
-                    <td>17.95</td>
-                    <td class="positive">+8.59</td>
-                    <td class="positive">+3196.9</td>
-                    <td class="positive">49.28</td>
-                    <td class="positive">-0.46</td>
-                    <td class="positive">100.00</td>
-                    <td class="positive">2.41</td>
-                </tr>
-            
-                <tr>
-                    <td>4</td>
-                    <td>000566</td>
-                    <td>海南海药</td>
-                    <td>化学制药</td>
-                    <td>6.77</td>
-                    <td class="positive">+10.08</td>
-                    <td class="positive">+23326.76</td>
-                    <td class="positive">49.08</td>
-                    <td class="positive">20.50</td>
-                    <td class="positive">100.00</td>
-                    <td class="positive">1.15</td>
-                </tr>
-            
-                <tr>
-                    <td>5</td>
-                    <td>000863</td>
-                    <td>三湘印象</td>
-                    <td>房地产开发</td>
-                    <td>4.8</td>
-                    <td class="positive">+0.00</td>
-                    <td class="positive">+1485.82</td>
-                    <td class="positive">47.30</td>
-                    <td class="positive">0.65</td>
-                    <td class="positive">100.00</td>
-                    <td class="positive">2.01</td>
-                </tr>
-            
-                <tr>
-                    <td>6</td>
-                    <td>601089</td>
-                    <td>福元医药</td>
-                    <td>化学制药</td>
-                    <td>24.13</td>
-                    <td class="positive">+3.08</td>
-                    <td class="positive">+1328.14</td>
-                    <td class="positive">46.83</td>
-                    <td class="positive">8.25</td>
-                    <td class="positive">100.00</td>
-                    <td class="positive">1.49</td>
-                </tr>
-            
-                <tr>
-                    <td>7</td>
-                    <td>603439</td>
-                    <td>贵州三力</td>
-                    <td>中药</td>
-                    <td>13.0</td>
-                    <td class="positive">+3.17</td>
-                    <td class="positive">+2835.84</td>
-                    <td class="positive">46.58</td>
-                    <td class="positive">11.46</td>
-                    <td class="positive">85.77</td>
-                    <td class="positive">2.09</td>
-                </tr>
-            
-                <tr>
-                    <td>8</td>
-                    <td>002218</td>
-                    <td>拓日新能</td>
-                    <td>光伏设备</td>
-                    <td>4.68</td>
-                    <td class="positive">+6.85</td>
-                    <td class="positive">+16094.38</td>
-                    <td class="positive">46.23</td>
-                    <td class="positive">10.99</td>
-                    <td class="positive">100.00</td>
-                    <td class="positive">1.23</td>
-                </tr>
-            
-                <tr>
-                    <td>9</td>
-                    <td>603139</td>
-                    <td>康惠股份</td>
-                    <td>中药</td>
-                    <td>23.6</td>
-                    <td class="positive">+2.08</td>
-                    <td class="positive">+461.76</td>
-                    <td class="positive">44.09</td>
-                    <td class="positive">9.17</td>
-                    <td class="positive">100.00</td>
-                    <td class="positive">0.98</td>
-                </tr>
-            
-                <tr>
-                    <td>10</td>
-                    <td>002644</td>
-                    <td>佛慈制药</td>
-                    <td>中药</td>
-                    <td>9.52</td>
-                    <td class="positive">+1.93</td>
-                    <td class="positive">+352.94</td>
-                    <td class="positive">44.05</td>
-                    <td class="positive">6.30</td>
-                    <td class="positive">100.00</td>
-                    <td class="positive">1.14</td>
-                </tr>
-            
-            </tbody>
-        </table>
     </div>
-    
-    </body>
-    </html>
-    
+</body>
+</html>
