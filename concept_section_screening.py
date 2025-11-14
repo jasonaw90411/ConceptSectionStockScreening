@@ -105,28 +105,21 @@ def get_top_concept_sections() -> List[Dict]:
         logger.error(f"获取概念板块数据失败: {e}")
         return []
         
-        logger.info(f"找到概念板块表格，形状: {concept_table.shape}")
-        logger.info(f"表格列名: {list(concept_table.columns)}")
-        
-        # 处理表格数据
-        top_concepts = process_concept_table(concept_table)
-        
-        # 只取前十
-        top_10 = top_concepts[:10]
-        
-        logger.info(f"成功获取前十概念板块: {[c['name'] for c in top_10]}")
-        
-        # 保存数据
-        save_concept_data(top_10)
-        
-        return top_10
-        
-    except requests.RequestException as e:
-        logger.error(f"获取概念板块数据失败: {e}")
-        return []
-    except Exception as e:
-        logger.error(f"处理概念板块数据时发生错误: {e}")
-        return []
+    logger.info(f"找到概念板块表格，形状: {concept_table.shape}")
+    logger.info(f"表格列名: {list(concept_table.columns)}")
+    
+    # 处理表格数据
+    top_concepts = process_concept_table(concept_table)
+    
+    # 只取前十
+    top_10 = top_concepts[:10]
+    
+    logger.info(f"成功获取前十概念板块: {[c['name'] for c in top_10]}")
+    
+    # 保存数据
+    save_concept_data(top_10)
+    
+    return top_10
 
 def process_concept_table(table: pd.DataFrame) -> List[Dict]:
     """
@@ -507,54 +500,77 @@ def generate_html_content(current_data: Dict, sorted_concepts: List, historical_
         .header {{
             background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
         }}
         .header h1 {{
             margin: 0;
-            font-size: 2.5em;
+            font-size: 1.8em;
             font-weight: 300;
         }}
         .header p {{
-            margin: 10px 0 0 0;
+            margin: 8px 0 0 0;
             opacity: 0.8;
-            font-size: 1.1em;
+            font-size: 0.9em;
         }}
         .content {{
-            padding: 30px;
+            padding: 20px;
         }}
         .section {{
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }}
         .section h2 {{
             color: #2c3e50;
-            border-bottom: 3px solid #3498db;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-size: 1.8em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            font-size: 1.2em;
         }}
-        .current-table {{
+        .dashboard {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }}
+        .section {{
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }}
+        .section h2 {{
+            color: #2c3e50;
+            margin: 0 0 12px 0;
+            font-size: 1.2em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 6px;
+        }}
+        .table-container {{
+            overflow-x: auto;
+        }}
+        .concept-table {{
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            font-size: 0.85em;
             background: white;
-            border-radius: 10px;
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }}
-        .current-table th {{
+        .concept-table th {{
             background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
-            padding: 15px;
+            padding: 8px 10px;
             text-align: left;
             font-weight: 600;
+            font-size: 0.9em;
         }}
-        .current-table td {{
-            padding: 12px 15px;
+        .concept-table td {{
+            padding: 6px 10px;
             border-bottom: 1px solid #ecf0f1;
         }}
-        .current-table tr:hover {{
-            background-color: #f8f9fa;
+        .concept-table tr:hover {{
+            background-color: #f1f2f6;
         }}
         .positive {{
             color: #e74c3c;
@@ -616,62 +632,66 @@ def generate_html_content(current_data: Dict, sorted_concepts: List, historical_
 <body>
     <div class="container">
         <div class="header">
-            <h1>概念板块资金流向分析报告</h1>
+            <h1>概念板块资金流向分析</h1>
             <p>更新时间: {current_time}</p>
         </div>
         
         <div class="content">
-            <!-- 当前概念板块数据 -->
-            <div class="section">
-                <h2>📊 当前概念板块资金流向排行前十</h2>
-                <table class="current-table">
-                    <thead>
-                        <tr>
-                            <th>排名</th>
-                            <th>概念板块</th>
-                            <th>涨跌幅(%)</th>
-                            <th>主力净流入(万元)</th>
-                            <th>超大单净流入(万元)</th>
-                            <th>大单净流入(万元)</th>
-                            <th>龙头股</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <div class="dashboard">
+                <!-- 当日概念板块数据 -->
+                <div class="section">
+                    <h2>📊 当日概念板块前十</h2>
+                    <div class="table-container">
+                        <table class="concept-table">
+                            <thead>
+                                <tr>
+                                    <th>排名</th>
+                                    <th>概念板块</th>
+                                    <th>涨跌幅(%)</th>
+                                    <th>主力净流入(万)</th>
+                                    <th>超大单(万)</th>
+                                    <th>大单(万)</th>
+                                    <th>龙头股</th>
+                                </tr>
+                            </thead>
+                            <tbody>
 """
     
     # 添加当前数据行
     for i, concept in enumerate(current_data.get('concepts', []), 1):
         change_class = 'positive' if concept.get('change_rate', 0) > 0 else 'negative'
         html += f"""
-                        <tr>
-                            <td>{i}</td>
-                            <td><strong>{concept.get('name', '')}</strong></td>
-                            <td class="{change_class}">{concept.get('change_rate', 0):.2f}%</td>
-                            <td>{concept.get('main_inflow', 0):,.0f}</td>
-                            <td>{concept.get('super_large_inflow', 0):,.0f}</td>
-                            <td>{concept.get('large_inflow', 0):,.0f}</td>
-                            <td>{concept.get('max_stock', '')}</td>
-                        </tr>
+                                <tr>
+                                    <td>{i}</td>
+                                    <td><strong>{concept.get('name', '')}</strong></td>
+                                    <td class="{change_class}">{concept.get('change_rate', 0):.2f}%</td>
+                                    <td>{concept.get('main_inflow', 0)/10000:.0f}</td>
+                                    <td>{concept.get('super_large_inflow', 0)/10000:.0f}</td>
+                                    <td>{concept.get('large_inflow', 0)/10000:.0f}</td>
+                                    <td>{concept.get('max_stock', '')}</td>
+                                </tr>
 """
     
     html += """
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- 历史统计数据 -->
-            <div class="section">
-                <h2>📈 前5天概念板块出现频率统计</h2>
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th>排名</th>
-                            <th>概念板块</th>
-                            <th>出现次数</th>
-                            <th>频率</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 历史统计数据 -->
+                <div class="section">
+                    <h2>📈 前5天概念频率统计</h2>
+                    <div class="table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>排名</th>
+                                    <th>概念板块</th>
+                                    <th>出现次数</th>
+                                    <th>频率</th>
+                                </tr>
+                            </thead>
+                            <tbody>
 """
     
     # 添加历史统计行
@@ -689,8 +709,10 @@ def generate_html_content(current_data: Dict, sorted_concepts: List, historical_
 """
     
     html += """
-                    </tbody>
-                </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             
             <!-- 数据概览 -->
