@@ -226,6 +226,7 @@ def calculate_trend_factor(stock):
     2. 趋势方向：均线排列顺序判断趋势
     3. 趋势强度：均线之间的间距和角度
     4. 拐点判断：股价刚突破均线系统
+    5. 完美多头排列额外奖励：MA5>MA10>MA20给予额外加分
     
     返回：趋势因子得分，正值表示向上趋势，负值表示向下趋势
     """
@@ -290,8 +291,22 @@ def calculate_trend_factor(stock):
         # 未突破
         breakthrough_strength = -0.5
     
-    # 5. 综合趋势因子计算
-    trend_score = trend_strength * 40 + gap_factor * 20 + breakthrough_strength * 40
+    # 5. 完美多头排列额外奖励分数
+    perfect_alignment_bonus = 0
+    if golden_cross_5_10 and golden_cross_10_20:
+        # 计算完美多头排列的额外奖励
+        # 奖励分数基于均线间距的稳定性
+        gap_stability = min(abs(gap_5_10), abs(gap_10_20)) / max(abs(gap_5_10), abs(gap_10_20)) if max(abs(gap_5_10), abs(gap_10_20)) > 0 else 0
+        
+        # 基础奖励20分，根据间距稳定性给予额外奖励（最多10分）
+        perfect_alignment_bonus = 20 + gap_stability * 10
+        
+        # 如果当前价格也高于所有均线，给予额外奖励
+        if price_above_ma5 and price_above_ma10 and price_above_ma20:
+            perfect_alignment_bonus += 10
+    
+    # 6. 综合趋势因子计算
+    trend_score = trend_strength * 40 + gap_factor * 20 + breakthrough_strength * 40 + perfect_alignment_bonus
     
     # 归一化到合理范围
     trend_score = max(-100, min(100, trend_score))
@@ -457,6 +472,27 @@ def select_stocks_with_phase(stock_data, phase_type="上涨阶段", top_n=10):
         stock['phase_volume_factor'] = volume_factor
         stock['phase_composite_score'] = composite_score
         stock['phase_type'] = phase_type
+        
+        # 检查是否有完美多头排列并记录奖励分数
+        ma5 = stock.get('ma5', 0)
+        ma10 = stock.get('ma10', 0)
+        ma20 = stock.get('ma20', 0)
+        if ma5 > 0 and ma10 > 0 and ma20 > 0 and ma5 > ma10 > ma20:
+            # 计算完美多头排列奖励分数
+            gap_5_10 = (ma5 - ma10) / ma10 * 100
+            gap_10_20 = (ma10 - ma20) / ma20 * 100
+            gap_stability = min(abs(gap_5_10), abs(gap_10_20)) / max(abs(gap_5_10), abs(gap_10_20)) if max(abs(gap_5_10), abs(gap_10_20)) > 0 else 0
+            perfect_alignment_bonus = 20 + gap_stability * 10
+            
+            current_price = stock.get('price', 0)
+            if current_price > ma5 and current_price > ma10 and current_price > ma20:
+                perfect_alignment_bonus += 10
+            
+            stock['perfect_alignment_bonus'] = perfect_alignment_bonus
+            stock['has_perfect_alignment'] = True
+        else:
+            stock['perfect_alignment_bonus'] = 0
+            stock['has_perfect_alignment'] = False
     
     # 按综合得分排序，选择前top_n只股票
     selected_stocks = sorted(all_stocks, key=lambda x: x['phase_composite_score'], reverse=True)[:top_n]
@@ -508,6 +544,8 @@ def generate_selection_report(selected_stocks, use_15day_factor=False, phase_typ
             stock_report['phase_momentum_score'] = stock.get('phase_momentum_score', 0)
             stock_report['phase_trend_score'] = stock.get('phase_trend_score', 0)
             stock_report['phase_volume_factor'] = stock.get('phase_volume_factor', 0)
+            stock_report['has_perfect_alignment'] = stock.get('has_perfect_alignment', False)
+            stock_report['perfect_alignment_bonus'] = stock.get('perfect_alignment_bonus', 0)
 
         elif use_15day_factor:
             stock_report['15day_momentum_score'] = stock.get('15day_momentum_score', 0)
@@ -576,11 +614,12 @@ def print_selection_summary(selected_stocks, use_15day_factor=False, phase_type=
     print(f"共选出{len(selected_stocks)}只股票")
     
     if phase_type:
-        print("\n排名  股票代码  股票名称      行业      价格    涨跌幅(%)  综合得分  动量得分  趋势得分  成交量因子")
-        print("-" * 130)
+        print("\n排名  股票代码  股票名称      行业      价格    涨跌幅(%)  综合得分  动量得分  趋势得分  成交量因子  完美多头  奖励分数")
+        print("-" * 150)
         
         for i, stock in enumerate(selected_stocks, 1):
-            print(f"{i:<4}  {stock.get('code', ''):<8}  {stock.get('name', ''):<10}  {stock.get('sector', ''):<8}  {stock.get('price', 0):<8.2f}  {stock.get('change_rate', 0):<9.2f}  {stock.get('phase_composite_score', 0):<8.2f}  {stock.get('phase_momentum_score', 0):<8.2f}  {stock.get('phase_trend_score', 0):<8.2f}  {stock.get('phase_volume_factor', 0):<10.2f}")
+            perfect_alignment = "是" if stock.get('has_perfect_alignment', False) else "否"
+            print(f"{i:<4}  {stock.get('code', ''):<8}  {stock.get('name', ''):<10}  {stock.get('sector', ''):<8}  {stock.get('price', 0):<8.2f}  {stock.get('change_rate', 0):<9.2f}  {stock.get('phase_composite_score', 0):<8.2f}  {stock.get('phase_momentum_score', 0):<8.2f}  {stock.get('phase_trend_score', 0):<8.2f}  {stock.get('phase_volume_factor', 0):<10.2f}  {perfect_alignment:<8}  {stock.get('perfect_alignment_bonus', 0):<8.2f}")
     elif use_15day_factor:
         print("\n排名  股票代码  股票名称      行业      价格    涨跌幅(%)  15天动量得分  原动量得分")
         print("-" * 120)
